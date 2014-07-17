@@ -1,0 +1,6 @@
+http://sourceforge.net/projects/ezwinports/files/
+http://sourceforge.net/projects/ezwinports/files/gnutls-3.0.9-w32-bin.zip/download?use_mirror=ncu
+从sf下载gnutls for windows,然后解压下载的文件，会出现4个文件夹，把bin文件夹里的文件全部复制到D:\emacs-22.3-bin-i386\emacs-22.3\bin，即emacs的bin文件夹里，再把解压出来的另外3个文件夹复制到emacs的bin文件夹的上一目录里，如D:\emacs-22.3-bin-i386\emacs-22.3
+打开emacs 
+在*scratch*里(require 'tls) (require 'erc)  M-x erc-ssl 即可
+或(erc-ssl :server "irc.freenode.net" :port 7000 :nick "bla" :full-name "bla" :password "")
