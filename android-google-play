@@ -1,0 +1,14 @@
+1.root之后可以在/data/app/删安装的软件，在/system/app删rom自带的软件
+2.root之后可以把谷歌的那堆服务apk复制到/system/app/下然后重启登录谷歌商店就行
+
+谷歌的那堆服务框架 应用百度网盘里有，site:pan.baidu.com
+或者装谷歌服务安装器然后从/system/app里拷出来,那堆apk不是要安装的，要复制到
+/system/app重启后自动安装，不要直接安装
+/system/app目录要有644权限
+
+当然也可用像刷机一样卡刷gms，但是官方recovery要签名所以只能刷第三方recovery后卡刷
+
+gms http://pan.baidu.com/s/1sj7BhrJ
+http://jingyan.baidu.com/article/ca41422ffbab1e1eae99edda.html
+
+只需root就可以解决，不需要刷第三方recovery然后刷机，不安全
