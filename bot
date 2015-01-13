@@ -1,0 +1,41 @@
+#!/usr/bin/python
+
+import socket
+import os
+import string
+
+alist = ['morgan.freenode.net',
+         6665,
+         'NICK sssuj\r\n',
+         'USER sssuj 8 * :sssuj\r\n',
+         'join #emacs\r\n',
+         'PONG :morgan.freenode.net\r\n']
+recv_msg = ""
+storage_list = []
+storage_str = ""
+recv_count = 20
+write_file_count = 5
+
+fd1 = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
+fd1.connect((alist[0],alist[1]))
+fd1.send(alist[2].encode())
+fd1.send(alist[3].encode())
+fd1.send(alist[4].encode())
+
+while True:
+    if write_file_count == 0 :
+        system('mail -s irclog r.papa@ovi.com < irclog')
+        write_file_count == 5
+    if recv_count == 0 :
+        storage_file = open('irclog','w+')
+        storage_str = ''.join(storage_list)
+        storage_file.write(storage_str).close()
+        recv_count = 20
+        write_file_count = write_file_count - 1
+        storage_list = []
+    recv_msg = fd1.recv(1024).decode()
+    recv_count = recv_count - 1
+    print(recv_msg, end='')
+    if recv_msg.startswith('PING') == True :
+        fd1.send(alist[5].encode())
+    storage_list.append(recv_msg)
