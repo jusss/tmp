@@ -1,0 +1,23 @@
+emacs 22
+ 
+M-x describe-coding-system 查看当前buffer编码
+ 
+M-x revert-buffer-with-coding-system 指定编码恢复当前buffer
+ 
+M-x set-buffer-file-coding-system 指定编码保存当前buffer
+ 
+cp936是gbk
+ 
+cp950是big5
+ 
+utf-8是utf8
+ 
+M-x set-buffer-file-coding-system utf-8-dos
+ 
+C-x C-s这样把\n结尾的换行符变成了\r\n
+ 
+M-x set-buffer-file-coding-system utf-8-unix
+ 
+C-x C-s把\r\n结尾的换行符变成了\n
+ 
+dos是\r\n unix是\n mac是\r

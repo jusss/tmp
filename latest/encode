@@ -1,0 +1,21 @@
+(define (l word)
+	(let ((input (string->list word))(output '())(output- '()))
+	
+	(define f (lambda () 
+	(if (null? input) output
+		(begin (set! output
+			(cons (integer->char (+ (char->integer (car input)) 1))
+						output))
+			(set! input (cdr input))
+			(f)))))
+
+(define p (lambda ()
+	(if (null? output) output-
+		(begin (set! output- (cons (car output) output-))
+			(set! output (cdr output))
+		(p)))))
+
+(define i (lambda ()
+	 (list->string output-)))
+
+(f)(p)(i)))

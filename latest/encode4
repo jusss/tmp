@@ -1,0 +1,43 @@
+(define fibonacci
+    (lambda (n)
+      (define a 0)
+      (define b 1)
+      (define f1
+	(lambda (n a b)
+	  (if (= n 0) a
+	      (if (= n 1) b
+		  (f1 (- n 1) b (+ a b))))))
+      (f1 n a b)))
+
+
+(define l4
+  (lambda (n i)
+  (define input '())
+  (define output '())
+  (define char->number
+    (lambda (n)
+      (if (char=? n #\1) 1
+	  (if (char=? n #\2) 2
+	      (if (char=? n #\3) 3
+		  (if (char=? n #\4) 4
+		      (if (char=? n #\5) 5
+			  (if (char=? n #\6) 6
+			      (if (char=? n #\7) 7
+				  (if (char=? n #\8) 8
+				      (if (char=? n #\9) 9
+					  0)))))))))))
+  (define get-a-list
+    (lambda (n)
+      (if (= n 0)
+	  output
+	  (begin (set! output (cons (car input) output))
+		 (set! input (cdr input))
+		 (get-a-list (- n 1))))))
+
+  (set! input (string->list (number->string (fibonacci i))))
+  (get-a-list n)
+  (reverse (map char->number output))))
+
+(define l 
+  (lambda (word i) (define n (length (string->list word)))
+                        (list->string (map integer->char (map + (map char->integer (string->list word)) (l4 n i))))))

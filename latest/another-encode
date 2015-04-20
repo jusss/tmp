@@ -1,0 +1,21 @@
+(define (shift-letter letter num)
+  (let ((n (char->integer letter)))
+    (integer->char (+ n num))))
+
+(define (shift-word word num)
+  (let ((l (string->list word)))
+    (list->string
+     (map (lambda (c)
+            (shift-letter c num))
+          l))))
+<z0d> you can add MOD to protect against too large numbers
+--> Fare (F4hN@cpe-142-255-32-93.nyc.res.rr.com) 已加入 #scheme
+<z0d> > (shift-word "hello" 1)
+<z0d> "ifmmp"
+<z0d> this is more general, as you can specify the shift amount
+
+
+--> DGASAU (~user@p50993595.dip0.t-ipconnect.de) 已加入 #scheme
+<leppie> (define (l str) (apply string (map (lambda (c) (integer->char (add1 (char->integer c)))) (string->list str))))
+<jusss> yous is better than mine
+<S-Insert>

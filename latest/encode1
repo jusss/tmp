@@ -1,0 +1,14 @@
+(define l
+	(lambda (word)  
+		(define input (string->list word))
+
+		(define f 
+			((lambda () (define output '()) 
+				(lambda () 
+					(if (null? input) output
+						(begin (set! output
+										(cons (integer->char (+ (char->integer (car input)) 1)) output))
+										(set! input (cdr input))
+							 (f)))))))
+		
+		(list->string (reverse (f)))))

@@ -1,0 +1,162 @@
+
+[19:58:48] <jusss> http://paste.ubuntu.com/7793165/
+[19:59:26] <jusss> why set! is wrong, let is right? 
+
+[20:10:35] <pjdelport> jusss: Generally speaking, all defines inside the body of a lambda should be floated to the start of it.
+[20:10:49] <pjdelport> jusss: Some Scheme implementations do this automatically for you, some don't.
+[20:11:26] <pjdelport> jusss: So in the first example, moving the (define f2 ...) before the (set! ...) should work.
+
+[20:25:33] <jusss> pjdelport: (define ..) before (set!...) in a lambda's body is a standard? 
+
+[20:29:24] <pjdelport> Well, not only before set!, before anything else.
+[20:29:29] <pyro-> rather than move (define f2 ...) above (set! v1 0), i think you could also just change it to (define v1 0)
+[20:31:03] <pyro-> in fact, that would be better, i think
+[20:31:08] <pjdelport> Right, probably.
+[20:31:16] <pyro-> becuase otherwise you havent defined v1
+
+[20:31:40] <pyro-> set! ing something that hasnt been defined probably works, but it doesnt look nice
+[20:31:57] <pyro-> but thats a different problem
+[20:32:17] <pyro-> pjdelport is right that the bigger problem is having any forms above the define forms
+
+[20:35:25] <jusss> what it's different between define and set! ? define can make a procedure
+[20:36:00] <pyro-> define can make a procedure
+[20:36:08] <pyro-> and define introduces a new binding
+[20:36:24] <pyro-> perhaps i'll write an example
+[20:36:40] <jusss> set! cann't make a binding ?
+
+[20:37:58] <pyro-> i'm not sure what the standards say, but your not supposed to use it that way. its supposed to mutate existing bindings
+[20:38:07] <pyro-> its not just an idle distinction
+[20:39:23] <Riastradh> SET! can't create a variable; it only modifies the value of an existing one.
+[20:39:30] <pyro-> if you define a global, then define a variable inside a lambda, the global variable is shadowed. outside of a call to the procedure, the global will not be affected by the new binding
+[20:40:01] <pyro-> but is you use set! inside the lambda, the global binding will change
+[20:40:16] <pyro-> Riastradh knows more than me ;-)
+[20:40:25] <jusss> （define f (let ((a 0)) (lambda () a)))  which environment is the variable a bound?
+[20:41:17] <Riastradh> Only within the LET.
+[20:41:21] <pyro-> let creates a new environment
+
+[20:41:49] <pyro-> f, on the other hand, is added to the "current" environment
+[20:42:00] <pyro-> lexically current
+[20:43:41] <jusss> let creates a local environment , it's right?
+[20:43:59] <pyro-> yes
+[20:44:02] <pyro-> more or less
+[20:44:11] <jusss> and only let can create a local environment? 
+[20:44:39] <pyro-> well, yes, but let is (or can be) implemented in terms of lambda
+
+[20:45:27] <pyro-> when you call a procedure, the body of the procedure is evaluated in a new environent which has the arguments added
+[20:45:28] <jusss> define and set! just create a variable to be binding?
+[20:46:23] <pyro-> define creates a binding from a symbol to a value, set changes an existing one. they both use the current environment, without making a new one
+[20:46:33] <jusss> (define f (lambda () (define a 9) a)) which environment is the variable a bound?
+[20:47:09] <pyro-> the new environment that is created when a procedure is called, that i just described
+[20:47:27] <pyro-> thus a goes away when f returns
+[20:47:42] <pyro-> (the binding goes away, that is)
+[20:51:25] <jusss> it make a new environment when call a procedure?
+[20:51:46] <pyro-> yes
+[20:52:06] <pyro-> with the arguents added to it.
+[20:52:20] <pyro-> then any local defines can be added to it also
+[20:52:28] <pyro-> and it will be lost when the procedure returns
+[20:53:05] <jusss> (define f (lambda () (define a 9) a)) , can i say (define a 9) make a new local environment ?
+[20:53:23] <jusss> not just let can do that
+[20:53:31] <pyro-> that is how let can be implemented in terms of lambda. in fact, only calls to procedures create new environments
+[20:53:48] <pyro-> no
+[20:54:07] <pyro-> the environment that already exists when f is called is used
+[20:54:24] <pyro-> (define a 9) adds the definition for a to the existing environment
+
+[20:58:26] <jusss> pyro-: a little confused, (define a 9) don't add a to top-level environment but f is called in top-level environment,does f run in top-level environment ?or run in a new envrionment when it called
+[20:59:23] <pyro-> the body of f "(define a 9) a" is evaluated in a new environment
+[20:59:27] <pyro-> when called
+[20:59:57] <pyro-> if you call (f) from the toplevel
+[21:00:02] <pyro-> wait for it to return
+[21:00:11] <jusss> the new environment have a name? standard
+[21:00:12] <pyro-> notice that a isn't defined
+[21:01:14] <pyro-> no, i don't think so. programmers refer to "local scope", but its not quite the same thing
+[21:02:02] <pyro-> even though understanding the way environments are used is crucial, you can't access them directly in scheme (well, most of the time), so they don't really need a name
+
+[21:04:10] <pyro-> the mechanism is explained fairly well in SICP, if you're interested
+[21:04:25] <pyro-> goodluck with your studies
+[21:04:28] <pyro-> goodnight
+[21:04:34] <jusss> (define f (let ((a 9)) (lambda () a)))  
+[21:04:55] <jusss> a in the new environemtn or let ?
+[21:05:14] <pyro-> let
+[21:05:26] <jusss> where is the let in?
+[21:06:02] <pyro-> assuming you type that form into the top level, so we are evaluating the define in the top level environmentnt
+[21:06:22] <pyro-> to evaluate the define form, we first evaluate the second argument (let ...
+[21:06:29] <pyro-> let introduces a new environment
+[21:06:38] <pyro-> containing the binding a => 9
+[21:06:51] <pjdelport> jusss: The let itself is evaluated inside an outer environment, but it creates a new environment for the bindings that it introduces.
+[21:07:05] <pyro-> the (lambda () a) is evaluated inside that "let environment"
+[21:07:22] <pyro-> then f is added to the toplevel environment
+[21:07:34] <pyro-> if we then make a call to f
+[21:07:35] <pyro-> (f)
+[21:07:43] <pyro-> a new environment is created
+[21:08:05] <pyro-> but it extends the let environment, not the toplevel environment
+[21:08:12] <pyro-> so a is available
+[21:08:16] <pyro-> no arguments to add,
+[21:08:26] <jusss> let have a relation with the new environemnet ? so confused @.@
+[21:08:26] <pyro-> so then the body "a" is evaluated in that new environment
+[21:08:43] <pyro-> jusss: environments form a tree
+[21:08:59] <pyro-> other than the toplevel, they all have a parent
+[21:09:26] <pyro-> when you evaluate an expression in a given environment, if a binding for a variable isnt found there, the parent environments are searched
+[21:10:44] <pyro-> which is how shadowing works. (define a 9) inside a procedure, will shadow a global definition of a. i.e. the local version will be used for the procedure call, but when the procedure returns, we are back to the top level, so the global binding is all thats left
+[21:10:51] <pyro-> jusss: read SICP maybe
+[21:10:53] <pyro-> goodnight
+[21:11:02] <jusss> goodnight
+
+[21:14:19] <pjdelport> jusss: It may be better to completely ignore the top-level environment at first.
+
+[21:14:48] <pjdelport> It's slightly special, and doesn't work the same way as Scheme environments in general.
+[21:14:53] <jusss> pjdelport: what's the relation between the environment let created and the new environment that is created when the procedure called
+[21:15:37] <jusss> pjdelport: (define f (let ((a 9)) (lambda () a)))
+[21:16:40] <pjdelport> No relation; in that case, the 'let' is creating one environment (containing the 'a' binding), and the lambda is implcitly creating another (empty) environment.
+[21:17:01] <pjdelport> The 'a' inside the lambda refers to the binding created by the let.
+[21:17:21] <pjdelport> (that's lexical scoping in action)
+[21:18:04] <pjdelport> jusss: It may be better to ignore all the different syntaxes, and just focus on lambda: under the hood, you can think of lambda is being the only construct that actually creates bindings.
+[21:18:15] <pjdelport> 'let' itself is just syntax sugar for lambda.
+
+[21:19:10] <pjdelport> When you say (let ((x y)) ...) it is just a shortcut for: ((lambda (x) ...) y)
+[21:19:50] <pjdelport> (In other words, creating a lambda of "x", and then immediately calling it with "y".)
+[21:19:57] <pjdelport> jusss: Does that make sense?
+
+[21:20:44] <pjdelport> Similarly, if you say: (let ((x 1) (y 2)) ...), it's a shortcut for: ((lambda (x y) ...) 1 2)
+[21:21:16] <pjdelport> The lambda is the construct that actually creates a namespaces, via its arguments.
+[21:21:26] <jusss> pjdelport: i know let is a syntax sugar, so lambda creat a envrionment?
+[21:21:27] <pjdelport> "a namespace", even
+[21:21:32] <pjdelport> Yes.
+[21:22:59] <pjdelport> Every time you call a lambda, it *binds* its arguments to the symbols (variable names) in its argument list, and then evaluates the body.
+[21:24:01] <pjdelport> So when you say ((lambda (x y) ...) 1 2) then Scheme will bind x to 1, bind y to 2, and then evaluate the body ... with those bindings of x and y.
+[21:25:34] <pjdelport> Every invocation of a function gets its own separate namespace, or set of bindings.
+[21:25:40] <jusss> so what's the meaning of top-level envrionment
+[21:26:01] <jusss> ?
+[21:26:03] <pjdelport> The top-level environment is just a sort of default namespace.
+[21:26:21] <pjdelport> But the exact meaning can differ from implementation to implementation.
+[21:26:59] <pjdelport> So it's not necessarily important to worry about it: the details of what's different don't necessarily matter except for your particular implementation.
+[21:30:52] <jusss> pjdelport: is that the environemtn let created in the environment lambda created ?
+[21:31:45] <jusss> lambda make a environemnt , let in the lambda creat another environemnet
+[21:33:49] <jusss> let is syntax sugar, outside lambda make a environment, inside lamda make a environment, but they have no relation ? 
+[21:41:19] <pjdelport> jusss: Right: every lambda represents a new environment, no matter how much they're nested inside each other.
+[21:42:42] <pjdelport> jusss: So consider this: (lambda (x) (lambda (y) (+ x y))
+[21:42:56] <pjdelport> Let's call that "add".
+[21:44:06] <pjdelport> When you call it like "(add 2)", it will bind x to 2, and then return the body (which is the lambda that takes "y"), with x bound to 2.
+[21:44:28] <pjdelport> So (add 2) effectively becomes: (lambda (y) (+ 2 y)
+[21:45:02] <pjdelport> And (add 3) would become: (lambda (y) (+ 3 y)
+
+[21:45:44] <jusss> pjdelport: the variable x is not bound in envrionment lambda y created
+[21:45:46] <pjdelport> Every time you call or invoke "add", you get a different procedure back, with a different binding of x.
+[21:46:14] <pjdelport> Right: it's bound inside the environment that (lambda (x) ..) created.
+
+
+[21:47:23] <pjdelport> If you call the result of (add 2) again, then you invoke the (lambda (y) ...) procedure, and bind y.
+[21:47:47] <pjdelport> so ((add 2) 3) becomes: (+ 2 3) which evaluates to 5
+[21:48:08] <pjdelport> and ((add 10) 20) becomes 30, and so on.
+[21:49:05] <jusss> pjdelport: (lambda (x) (lambda (y) (lambda (z) (+  x y)))) it can be run ?
+[21:49:49] <jusss> pjdelport: the variable is bound in lambda x, and it can be call in lambda z ?
+[21:49:50] <pjdelport> Yes: you can have as many nested lambdas as you want.
+[21:49:58] <pjdelport> Yep.
+[21:50:39] <pjdelport> So there's no artificial limit: the *entire* body of (lambda (x) ...) can "see" x.
+[21:50:57] <jusss> it's the different between lexical and dynamic scope ?
+[21:51:29] <pjdelport> So in the above example, the body of the lambda of x is: (lambda (y) (lambda (z) (+  x y)))
+[21:51:32] <pjdelport> Right.
+[21:52:03] <pjdelport> In lexical scope, like Scheme, it works like the above: the lexical nesting determines which bindings a lambda sees.
+[21:52:15] <pjdelport> With dynamic scoping, the above would not work.
+
+[21:54:45] <jusss> pjdelport: i learn so much knowlege this time ,thank you very much
+[21:55:45] <pjdelport> jusss: Glad I could help. :)

@@ -1,0 +1,5 @@
+(define char-index 
+    (lambda (n)
+      (cond ((char=? n #\a) 1)
+	    ((char=? n #\b) 2)
+	    ((char=? n #\c) 3))))

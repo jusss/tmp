@@ -1,0 +1,34 @@
+[17:42:34] --> taylanub (~taylanub@p200300514A6FEF130213E8FFFEED36FB.dip0.t-ipconnect.de) 已加入 #scheme
+[17:52:10] <jusss> i'm confused about dynamic scope...what its different between lexical and dynamic? 
+[17:52:21] <jusss> (define (bla1) (bla2))
+[17:52:31] <jusss> (define (bla2) (+ z1 z2))
+[17:52:49] <jusss> (let ((z1 3)(z2 3)) (bla1)) -> 6
+[17:56:27] <jusss> the variable's value is the latest binding value ?
+[18:02:15] --> matheus23 (~quassel@p4FDF35C2.dip0.t-ipconnect.de) 已加入 #scheme
+[18:02:35] <pjdelport> jusss: Right. With dynamic scoping, the environment / name space is defined by the caller at runtime.
+[18:02:58] <pjdelport> (Which can get very confusing and brittle.)
+[18:03:19] --> przl (~przlrkt@p5DCA356E.dip0.t-ipconnect.de) 已加入 #scheme
+[18:03:37] <pjdelport> With lexical scoping, the environment is statically defined by the function's surrounding lexical scope only.
+[18:05:33] <-- hkBst (~marijn@gentoo/developer/hkbst) 已退出 (Ping timeout: 240 seconds)
+[18:08:09] <jusss> pjdelport: the variable in dynamic scope is different with thg global variable ?
+[18:09:19] <pjdelport> jusss: It depends; with dynamic scoping, the variable you see *may* be coming from the global scope, but it may also be coming from any caller in between the current function and the global scope.
+[18:10:19] <pjdelport> jusss: Basically, dynamic scoping means you look in the current function's local scope, and if you don't find the binding there, you look in the caller, then in its caller, and so on, until you reach the global scope.
+[18:11:01] <-- fgudin (fgudin@odin.sdf-eu.org) 已退出 (Ping timeout: 276 seconds)
+[18:17:59] <jusss> pjdelport: (set! f (let ((x 1)) (lambda (y) (list x y)))) the variable x is in the function f's local scope?
+[18:20:15] <pjdelport> jusss: Not strictly speaking, no. The let block establishes its own temporary scope outside of the lambda.
+[18:20:50] <-- MichaelRaskin (~MichaelRa@195.91.224.161) 已退出 (Remote host closed the connection)
+[18:21:28] <pjdelport> So there are three scopes there: (1) the very outer (or global) scope that f is being rebound in, (2) the let block's scope, which contains x, and (3) the lambda form's scope, which contains y.
+[18:22:13] <-- pjb (~t@AMontsouris-654-1-146-153.w90-46.abo.wanadoo.fr) 已退出 (Remote host closed the connection)
+[18:23:06] <pjdelport> But note that under the hood, all the scopes are just lambdas: you can always rewrite the let in (let ((x 1)) (lambda (y) (list x y))) as a lambda: ((lambda (x) (lambda (y) (list x y))) 1)
+[18:23:33] <pjdelport> (In other words, let is just a shortcut for defining and immediately calling a lambda.)
+[18:28:07] --> MichaelRaskin (~MichaelRa@195.91.224.161) 已加入 #scheme
+[18:36:41] <jusss> pjdelport: the variable in inside scope can look for the value from outside scope, but the variable in outside scop cann't look for value from inside scope ? it's right ?
+[18:37:25] <pjdelport> jusss: That sounds about right, probably.
+[18:37:27] <jusss> (define (a) (let ((n 1))) (+ n 1)
+[18:41:41] <jusss> pjdelport: the variable in lexical/static scope just look for value in local scope ? 
+[18:41:57] <pjdelport> Right, the local lexical scope.
+[18:42:31] <jusss> pjdelport: i see, thx :-)
+[18:43:18] <-- yacks (~py@122.172.74.2) 已退出 (Remote host closed the connection)
+[18:56:41] <-> mrowe_away 现在叫 mrowe
+[18:58:24] <-- frkout_ (~frkout@101.110.31.120) 已退出 (Remote host closed the connection)
+

@@ -1,0 +1,6 @@
+(define count+1 
+	(let ((i 0))
+		(define count 
+			(let ((n 1))
+				(lambda () (set! n (+ n i)) n)))
+		(lambda () (set! i (+ (count) i)) i)))

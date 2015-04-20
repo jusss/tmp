@@ -1,0 +1,24 @@
+;(define power
+;  (lambda (x n)
+;    (let ((y x))
+;      (define f1
+;	(lambda (x n)
+;	  (if (= n 1) y
+;	    (begin (set! y (* y x))
+;		   (f1 x (- n 1))))))
+;      (f1 x n))))
+;
+;(define power
+;    (lambda (x n y)
+;      (if (= n 1) x
+;	  (power (* x y) (- n 1) y))))
+
+(define power
+    (lambda (x n)
+      (define y x)
+      (define f1
+	(lambda (x n)
+	  (if (= n 1) x
+	      (f1 (* x y) (- n 1)))))
+      (f1 x n)))
+

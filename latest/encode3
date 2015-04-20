@@ -1,0 +1,2 @@
+(define character (lambda (n) (integer->char (+ 1 (char->integer n)))))
+(define l (lambda (word) (list->string (map character (string->list word)))))
